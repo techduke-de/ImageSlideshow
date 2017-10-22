@@ -10,6 +10,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.File;
+import java.awt.event.*;
+import java.nio.Buffer;
 
 public class MainWindow extends javax.swing.JFrame{
 
@@ -57,15 +59,25 @@ public class MainWindow extends javax.swing.JFrame{
             mainFrame.setLayout(new BorderLayout(0,0));
             mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             mainFrame.setUndecorated(true);
+            mainFrame.setBackground(Color.black);
             mainFrame.setVisible(true);
             mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             mainFrame.add(img_lbl);
 
 
             //Show first Image after Startup
-            BufferedImage img = ImageIO.read(new File(links[0]));
-            ImageIcon icon = new ImageIcon(img.getScaledInstance(mainFrame.getWidth(), mainFrame.getHeight(), Image.SCALE_SMOOTH));
-            img_lbl.setIcon(icon);
+            //BufferedImage img = ImageIO.read(new File(links[0]));
+            //ImageIcon icon = new ImageIcon(img.getScaledInstance(mainFrame.getWidth(), mainFrame.getHeight(), Image.SCALE_SMOOTH));
+            //img_lbl.setIcon(icon);
+
+            //Show first Image after Startup - with Thread
+            try {
+                LoadImageInBackground bgworker = new LoadImageInBackground(mainFrame.getWidth(),mainFrame.getHeight(), links[0]);
+                ImageIcon icon2 = bgworker.doInBackground();
+                img_lbl.setIcon(icon2);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             //Show other images after delay of time
             Timer timer = new Timer(delay, new ActionListener() {
@@ -75,16 +87,19 @@ public class MainWindow extends javax.swing.JFrame{
 
                     //Load new Image
                     try {
-                        BufferedImage new_img = ImageIO.read(new File(links[element]));
-                        ImageIcon new_icon = new ImageIcon(new_img.getScaledInstance(mainFrame.getWidth(), mainFrame.getHeight(), Image.SCALE_SMOOTH));
-                        img_lbl.setIcon(new_icon);
+                        //BufferedImage new_img = ImageIO.read(new File(links[element]));
+                        //ImageIcon new_icon = new ImageIcon(new_img.getScaledInstance(mainFrame.getWidth(), mainFrame.getHeight(), Image.SCALE_SMOOTH));
+                        //img_lbl.setIcon(new_icon);
+                        LoadImageInBackground bgworker = new LoadImageInBackground(mainFrame.getWidth(), mainFrame.getHeight(), links[element]);
+                        ImageIcon icon3 = bgworker.doInBackground();
+                        img_lbl.setIcon(icon3);
 
                         if(element == links.length -1)
                             element = 0;
                         else
                             element++;
 
-                    } catch (IOException e1) {
+                    } catch (Exception e1) {
                         e1.printStackTrace();
                         System.exit(1);
                     }
@@ -106,5 +121,25 @@ class ImageClickedListener extends MouseAdapter{
         if(e.getClickCount() == 2){
             System.exit(0);
         }
+    }
+}
+
+class LoadImageInBackground extends SwingWorker<ImageIcon, Object>{
+
+    private int width;
+    private int height;
+    private String path;
+
+    public LoadImageInBackground(int width, int height, String path){
+        this.width = width;
+        this.height = height;
+        this.path = path;
+    }
+
+    @Override
+    protected ImageIcon doInBackground() throws Exception {
+        BufferedImage img = ImageIO.read(new File(this.path));
+        ImageIcon icon = new ImageIcon(img.getScaledInstance(this.width, this.height, Image.SCALE_SMOOTH));
+        return icon;
     }
 }

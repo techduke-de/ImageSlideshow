@@ -25,6 +25,7 @@ public class MainWindow extends javax.swing.JFrame{
 
     private MainWindow() throws IOException{
 
+
         //Choose Directory with Images
         JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("user.home"));
@@ -59,22 +60,15 @@ public class MainWindow extends javax.swing.JFrame{
             mainFrame.setLayout(new BorderLayout(0,0));
             mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             mainFrame.setUndecorated(true);
-            mainFrame.setBackground(Color.black);
+            mainFrame.getContentPane().setBackground(Color.BLACK);
             mainFrame.setVisible(true);
             mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             mainFrame.add(img_lbl);
 
-
-            //Show first Image after Startup
-            //BufferedImage img = ImageIO.read(new File(links[0]));
-            //ImageIcon icon = new ImageIcon(img.getScaledInstance(mainFrame.getWidth(), mainFrame.getHeight(), Image.SCALE_SMOOTH));
-            //img_lbl.setIcon(icon);
-
             //Show first Image after Startup - with Thread
             try {
                 LoadImageInBackground bgworker = new LoadImageInBackground(mainFrame.getWidth(),mainFrame.getHeight(), links[0]);
-                ImageIcon icon2 = bgworker.doInBackground();
-                img_lbl.setIcon(icon2);
+                img_lbl.setIcon(bgworker.doInBackground());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -87,12 +81,8 @@ public class MainWindow extends javax.swing.JFrame{
 
                     //Load new Image
                     try {
-                        //BufferedImage new_img = ImageIO.read(new File(links[element]));
-                        //ImageIcon new_icon = new ImageIcon(new_img.getScaledInstance(mainFrame.getWidth(), mainFrame.getHeight(), Image.SCALE_SMOOTH));
-                        //img_lbl.setIcon(new_icon);
                         LoadImageInBackground bgworker = new LoadImageInBackground(mainFrame.getWidth(), mainFrame.getHeight(), links[element]);
-                        ImageIcon icon3 = bgworker.doInBackground();
-                        img_lbl.setIcon(icon3);
+                        img_lbl.setIcon(bgworker.doInBackground());
 
                         if(element == links.length -1)
                             element = 0;
